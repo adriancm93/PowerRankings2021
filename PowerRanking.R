@@ -20,8 +20,8 @@ offense = filt %>%
     game_id, posteam) %>%
   summarise(
     EPA = sum(epa),
-    homet = unique(home_team),
-    awayt = unique(away_team)
+    home = unique(home_team),
+    away = unique(away_team)
   ) %>% 
   ungroup() 
 
@@ -41,11 +41,9 @@ team = dplyr::inner_join(
   )%>% 
   mutate(
     EPADiff = EPA - DefEPA,
-    opponent = if_else(team == homet, awayt,homet),
-    home = if_else(team == homet,1,0)
+    opponent = if_else(team == home, away,home)
     ) %>% 
   select(team,opponent,home,EPADiff) %>% arrange(by=team)
-
 
 #Model
 model = team %>%
@@ -53,8 +51,6 @@ model = team %>%
     formula=
       # Response variable
       EPADiff ~
-      #adjust for home field
-      home +
       #adjust for opponent
       as.factor(opponent) +
       #this is the strength of each team
@@ -69,7 +65,6 @@ effects = broom.mixed::tidy(model,effects="ran_vals") %>%
     by = estimate
   )
 
-
 #Plot
 #Let's do 95% confidence interval
 z <- 1.96
@@ -77,10 +72,10 @@ z <- 1.96
 effects %>%
   ggplot(aes(x=factor(team, level = team),estimate)) + 
   
-  geom_linerange(alpha = .6, color = 'gray', linetype = 2,aes(ymin=estimate - z*std.error,
+  geom_linerange(alpha = .7, color = 'gray', linetype = 2,aes(ymin=estimate - z*std.error,
                                   ymax=estimate + z*std.error))+
   
-  geom_point(aes(fill = estimate),color='gray',pch=21,size=3) +
+  geom_point(aes(fill = estimate),alpha = 1, color='gray',pch=21,size=3) +
   
   coord_flip() + ggdark::dark_theme_classic() + 
   theme(
@@ -93,7 +88,7 @@ effects %>%
        caption = "Data: nflfastR, by  @adriancm93",
        title = "Power Rankings",
 subtitle = paste0(
-  unique(data$season),' season, weeks ',min(data$week),'-',max(data$week), ', adjusted for opponent and home field')
+  unique(filt$season),' season, weeks ',min(filt$week),'-',max(filt$week), ', adjusted for opponent')
 )
 
 #Save it
