@@ -63,6 +63,10 @@ effects = broom.mixed::tidy(model,effects="ran_vals") %>%
   select(level,estimate,std.error) %>% rename(team = level) %>% 
   arrange(
     by = estimate
+  ) %>% 
+  mutate(
+    rank = 32:1,
+    Team = paste(team,rank)
   )
 
 #Plot
@@ -70,7 +74,7 @@ effects = broom.mixed::tidy(model,effects="ran_vals") %>%
 z <- 1.96
 #Pretty plot
 effects %>%
-  ggplot(aes(x=factor(team, level = team),estimate)) + 
+  ggplot(aes(x=factor(Team, level = Team),estimate)) + 
   
   geom_linerange(alpha = .7, color = 'gray', linetype = 2,aes(ymin=estimate - z*std.error,
                                   ymax=estimate + z*std.error))+
@@ -92,5 +96,5 @@ subtitle = paste0(
 )
 
 #Save it
-ggsave(dpi = 600, filename = 'ranks.png',  width = 12,height = 6)
+ggsave(dpi = 700, filename = 'ranks.png',  width = 12,height = 6)
 
