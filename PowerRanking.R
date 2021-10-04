@@ -6,6 +6,7 @@ library(nflfastR)
 #Load data
 data <- nflfastR::load_pbp(2021)
 
+
 #Prepare data
 filt = data %>% filter(
   season_type == 'REG',
@@ -96,5 +97,5 @@ subtitle = paste0(
 )
 
 #Save it
-ggsave(dpi = 700, filename = 'ranks.png',  width = 12,height = 6)
+ggsave(dpi = 600, filename = 'ranks.png',  width = 12,height = 6)
 
